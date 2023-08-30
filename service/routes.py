@@ -81,12 +81,25 @@ def read_account(id):
         abort(status.HTTP_404_NOT_FOUND, f"Account with id {id} could not be found")
     return account.serialize(), status.HTTP_200_OK
 
-
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
 
 # ... place you code here to UPDATE an account ...
+@app.route("/accounts/<int:id>", methods=["PUT"])
+def update_account(id):
+    """
+    Updates an Account
+    This endpoint will update an Account given its id and new data
+    """
+    app.logger.info(f"Request to update Account with id {id}")
+    check_content_type("application/json")
+    account = Account.find(id)
+    if not account:
+        abort(status.HTTP_404_NOT_FOUND, f"Account with id {id} could not be found")
+    account.deserialize(request.get_json())
+    account.update()
+    return account.serialize(), status.HTTP_200_OK
 
 
 ######################################################################
@@ -94,7 +107,17 @@ def read_account(id):
 ######################################################################
 
 # ... place you code here to DELETE an account ...
-
+@app.route("/accounts/<int:id>", methods=["DELETE"])
+def delete_account(id):
+    """
+    Deletes an Account
+    This endpoint will delete an Account given its id
+    """
+    app.logger.info(f"Request to delete Account with id {id}")
+    account = Account.find(id)
+    if account:
+        account.delete()
+    return "", status.HTTP_204_NO_CONTENT
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
