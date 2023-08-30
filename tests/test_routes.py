@@ -182,4 +182,17 @@ class TestAccountService(TestCase):
 
     def test_list_accounts(self):
         """It should list all accounts"""
-        
+        N_accounts=3
+        accounts = self._create_accounts(N_accounts)
+        response = self.client.get(f"{BASE_URL}")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        all_accounts = response.get_json()
+        self.assertEqual(len(all_accounts), N_accounts)
+        for i in range(0, N_accounts):
+            self.assertEqual(all_accounts[i]["name"], accounts[i].name)
+            self.assertEqual(all_accounts[i]["email"], accounts[i].email)
+            self.assertEqual(all_accounts[i]["address"], accounts[i].address)
+            self.assertEqual(all_accounts[i]["phone_number"], accounts[i].phone_number)
+            self.assertEqual(all_accounts[i]["date_joined"], str(accounts[i].date_joined))
