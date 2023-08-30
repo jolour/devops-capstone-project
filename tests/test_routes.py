@@ -196,3 +196,10 @@ class TestAccountService(TestCase):
             self.assertEqual(all_accounts[i]["address"], accounts[i].address)
             self.assertEqual(all_accounts[i]["phone_number"], accounts[i].phone_number)
             self.assertEqual(all_accounts[i]["date_joined"], str(accounts[i].date_joined))
+
+    def test_method_not_allowed(self):
+        """It should not allow an illegal method call"""
+        resp = self.client.put(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        resp = self.client.delete(BASE_URL)
+        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
