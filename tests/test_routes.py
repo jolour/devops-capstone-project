@@ -128,10 +128,7 @@ class TestAccountService(TestCase):
     def test_read_an_account(self):
         """It should read an account"""
         account = self._create_accounts(1)[0]
-        response = self.client.get(
-            f"{BASE_URL}/{account.id}", 
-            content_type="application/json"
-        )
+        response = self.client.get(f"{BASE_URL}/{account.id}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # Check the data is correct
@@ -147,3 +144,42 @@ class TestAccountService(TestCase):
         response = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
+    def test_update_an_account(self):
+        """It should update an account"""
+        account = self._create_accounts(1)[0]
+        update = AccountFactory()
+        response = self.client.put(
+            f"{BASE_URL}/{account.id}",
+            json=update.serialize(), 
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check the data is correct
+        new_account = response.get_json()
+        self.assertEqual(new_account["name"], update.name)
+        self.assertEqual(new_account["email"], update.email)
+        self.assertEqual(new_account["address"], update.address)
+        self.assertEqual(new_account["phone_number"], update.phone_number)
+        self.assertEqual(new_account["date_joined"], str(update.date_joined))
+
+    def test_update_account_not_found(self):
+        """It should try to update an invalid account"""
+        update = AccountFactory()
+        response = self.client.put(
+            f"{BASE_URL}/0",
+            json=update.serialize(), 
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+    def test_delete_an_account(self):
+        """It should delete an account"""
+        account = self._create_accounts(1)[0]
+        response = self.client.delete(f"{BASE_URL}/{account.id}")
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_list_accounts(self):
+        """It should list all accounts"""
+        
