@@ -21,6 +21,7 @@ DATABASE_URI = os.getenv(
 BASE_URL = "/accounts"
 HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 
+
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
@@ -136,7 +137,7 @@ class TestAccountService(TestCase):
         # Check the data is correct
         new_account = response.get_json()
         for key, value in account.serialize().items():
-                self.assertEqual(new_account.get(key), value)
+            self.assertEqual(new_account.get(key), value)
 
     def test_account_not_found(self):
         """It should try to read an invalid account"""
@@ -167,7 +168,7 @@ class TestAccountService(TestCase):
         update = AccountFactory()
         response = self.client.put(
             f"{BASE_URL}/0",
-            json=update.serialize(), 
+            json=update.serialize(),
             content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -181,7 +182,7 @@ class TestAccountService(TestCase):
 
     def test_list_accounts(self):
         """It should list all accounts"""
-        N_accounts=3
+        N_accounts = 3
         accounts = self._create_accounts(N_accounts)
         response = self.client.get(f"{BASE_URL}")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -189,7 +190,7 @@ class TestAccountService(TestCase):
 
         all_accounts = response.get_json()
         self.assertEqual(len(all_accounts), N_accounts)
-        
+
         account_list = [account.serialize() for account in accounts]
         for i in range(0, N_accounts):
             for key, value in account_list[i].items():
@@ -221,4 +222,4 @@ class TestAccountService(TestCase):
         """It should return CORS policies"""
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.headers.get('Access-Control-Allow-Origin'), '*') 
+        self.assertEqual(response.headers.get('Access-Control-Allow-Origin'), '*')
