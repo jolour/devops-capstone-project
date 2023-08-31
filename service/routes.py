@@ -57,11 +57,10 @@ def create_accounts():
         jsonify(message), status.HTTP_201_CREATED, {"Location": location_url}
     )
 
+
 ######################################################################
 # LIST ALL ACCOUNTS
 ######################################################################
-
-# ... place you code here to LIST accounts ...
 @app.route("/accounts", methods=["GET"])
 def list_accounts():
     """
@@ -74,11 +73,10 @@ def list_accounts():
     app.logger.info(f"Retruning {len(account_list)} Accounts")
     return jsonify(account_list), status.HTTP_200_OK
 
+
 ######################################################################
 # READ AN ACCOUNT
 ######################################################################
-
-# ... place you code here to READ an account ...
 @app.route("/accounts/<int:id>", methods=["GET"])
 def read_account(id):
     """
@@ -91,11 +89,10 @@ def read_account(id):
         abort(status.HTTP_404_NOT_FOUND, f"Account with id {id} could not be found")
     return account.serialize(), status.HTTP_200_OK
 
+
 ######################################################################
 # UPDATE AN EXISTING ACCOUNT
 ######################################################################
-
-# ... place you code here to UPDATE an account ...
 @app.route("/accounts/<int:id>", methods=["PUT"])
 def update_account(id):
     """
@@ -111,11 +108,10 @@ def update_account(id):
     account.update()
     return account.serialize(), status.HTTP_200_OK
 
+
 ######################################################################
 # DELETE AN ACCOUNT
 ######################################################################
-
-# ... place you code here to DELETE an account ...
 @app.route("/accounts/<int:id>", methods=["DELETE"])
 def delete_account(id):
     """
@@ -127,6 +123,7 @@ def delete_account(id):
     if account:
         account.delete()
     return "", status.HTTP_204_NO_CONTENT
+
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
