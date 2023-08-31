@@ -18,7 +18,7 @@ DATABASE_URI = os.getenv(
 )
 
 BASE_URL = "/accounts"
-
+HTTPS_ENVIRON = {'wsgi.url_scheme': 'https'}
 
 ######################################################################
 #  T E S T   C A S E S
@@ -133,11 +133,8 @@ class TestAccountService(TestCase):
 
         # Check the data is correct
         new_account = response.get_json()
-        self.assertEqual(new_account["name"], account.name)
-        self.assertEqual(new_account["email"], account.email)
-        self.assertEqual(new_account["address"], account.address)
-        self.assertEqual(new_account["phone_number"], account.phone_number)
-        self.assertEqual(new_account["date_joined"], str(account.date_joined))
+        for key, value in account.serialize().items():
+                self.assertEqual(new_account.get(key), value)
 
     def test_account_not_found(self):
         """It should try to read an invalid account"""
@@ -157,11 +154,11 @@ class TestAccountService(TestCase):
 
         # Check the data is correct
         new_account = response.get_json()
-        self.assertEqual(new_account["name"], update.name)
-        self.assertEqual(new_account["email"], update.email)
-        self.assertEqual(new_account["address"], update.address)
-        self.assertEqual(new_account["phone_number"], update.phone_number)
-        self.assertEqual(new_account["date_joined"], str(update.date_joined))
+        for key, value in update.serialize().items():
+            if key != "id":
+                self.assertEqual(new_account.get(key), value)
+            else:
+                self.assertEqual(new_account.get(key), account.id)
 
     def test_update_account_not_found(self):
         """It should try to update an invalid account"""
@@ -190,16 +187,30 @@ class TestAccountService(TestCase):
 
         all_accounts = response.get_json()
         self.assertEqual(len(all_accounts), N_accounts)
+        
+        account_list = [account.serialize() for account in accounts]
         for i in range(0, N_accounts):
-            self.assertEqual(all_accounts[i]["name"], accounts[i].name)
-            self.assertEqual(all_accounts[i]["email"], accounts[i].email)
-            self.assertEqual(all_accounts[i]["address"], accounts[i].address)
-            self.assertEqual(all_accounts[i]["phone_number"], accounts[i].phone_number)
-            self.assertEqual(all_accounts[i]["date_joined"], str(accounts[i].date_joined))
+            for key, value in account_list[i].items():
+                self.assertEqual(all_accounts[i].get(key), value)
 
     def test_method_not_allowed(self):
         """It should not allow an illegal method call"""
-        resp = self.client.put(BASE_URL)
-        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
-        resp = self.client.delete(BASE_URL)
-        self.assertEqual(resp.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        response = self.client.put(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        response = self.client.delete(BASE_URL)
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_security_headers(self):
+        """it should return secure headers"""
+        response = self.client.put('/', environ_overrides=HTTPS_ENVIRON)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        headers = {
+            'X-Frame-Options': 'SAMEORIGIN',
+            'X-XSS-Protection': '1; mode=block',
+            'X-Content-Type-Options': 'nosniff',
+            'Content-Security-Policy': 'default-src \'self\'; object-src \'none\'',
+            'Referrer-Policy': 'strict-origin-when-cross-origin'
+        }
+        for key, value in headers.items():
+            self.assertEqual(response.headers.get(key), value)
+
