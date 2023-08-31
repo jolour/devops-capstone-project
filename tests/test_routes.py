@@ -150,7 +150,7 @@ class TestAccountService(TestCase):
         update = AccountFactory()
         response = self.client.put(
             f"{BASE_URL}/{account.id}",
-            json=update.serialize(), 
+            json=update.serialize(),
             content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -172,7 +172,6 @@ class TestAccountService(TestCase):
             content_type="application/json"
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
 
     def test_delete_an_account(self):
         """It should delete an account"""
@@ -217,7 +216,7 @@ class TestAccountService(TestCase):
         print(response.headers)
         for key, value in headers.items():
             self.assertEqual(response.headers.get(key), value)
-    
+
     def test_cors_policies(self):
         """It should return CORS policies"""
         response = self.client.get('/', environ_overrides=HTTPS_ENVIRON)
